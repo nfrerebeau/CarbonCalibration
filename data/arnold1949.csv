@@ -1,0 +1,8 @@
+sample;age_expected;age_expected_error;age_found;age_found_error;activity_expected;activity_found;activity_found_error;remarks
+Today;0;;0;;12.5;12.5;0.2;Average value from Libby et al. 1949, Science 109, p. 227-228.
+Tree Ring;1372;50;1100;150;10.65;10.99;0.15;"Sample of Douglas fir excavated  in the Red Rock Valley (Arizona, US) in 1931 (inner ring date : 530 AD ; cutting date : 623 AD)"
+Ptolemy;2149;150;2300;450;9.67;9.5;0.45;Piece of wood from a mummiform coffin from Egypt (dated on stylistic grounds in the Ptolemaic period)
+Tayinat;2624;50;2600;150;9.1;9.18;0.18;Two fragments of wood (Pinus halepensis) from the floor of a central room in a large palace of the Syro-Hittite period (northwestern Syria)
+Redwood;2928;52;3005;165;8.78;8.68;0.17;Inner part of a Sequoia gigantea tree felled in 1874 AD, known as the Centennial Stump
+Sesostris;3792;50;3700;400;7.9;7.97;0.3;Piece of deck board from the funerary boat of the Egyptian Sesostris III
+Zojer, Sneferu;4600;75;4750;250;7.15;7.04;0.2;Cypress wood from the tomb of Sneferu of Meydum andf acacia from the tomb of Zoser at Sakkara (Egypt)
