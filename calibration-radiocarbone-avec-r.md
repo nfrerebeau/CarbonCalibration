@@ -22,22 +22,9 @@ abstract: Cette leçon explique comment calibrer des âges radiocarbones avec le
 mathjax: true
 avatar_alt:
 doi:
-
-output:
-  rmarkdown::html_document:
-    keep_md: false
-    self_contained: true
-editor_options: 
-  chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  echo = TRUE,
-  fig.align = "center",
-  fig.path = "figures/"
-)
-```
+{% include toc.html %}
 
 ## Calibrer des âges radiocarbone avec R
 
@@ -61,24 +48,7 @@ Le <sup>14</sup>C est un est des trois [isotopes](https://fr.wikipedia.org/wiki/
 
 La période du <sup>14</sup>C est de 5730 ± 40 ans : pour une quantité initiale $N_0$ d'atomes de <sup>14</sup>C, il en reste $\frac{N_0}{2}$ au bout de 5730 ans, $\frac{N_0}{4}$ au bout de 11460 ans, etc. (fig. 1). Au bout de 8 à 10 périodes (environ 45000 à 55000 ans), on considère que la quantité de <sup>14</sup>C est trop faible pour être mesurée : c'est la limite de la méthode.
 
-```{r decroissance, echo=FALSE, fig.width=7, fig.height=3.5, fig.cap="Figure 1 : Décroissance exponentielle d'une quantité $N_0$ d'atomes radioactifs au cours du temps (exprimé en périodes radioactives)."}
-i <- 5730
-par(mar = c(4, 4, 1, 1) + 0.1, las = 1)
-curve(
-  expr = 1 * exp(-(log(2) / i) * x),
-  from = 0, to = 10 * 5730,
-  xlab = "Temps (périodes)", ylab = "Nombre d'atomes",
-  xaxs = "i", yaxs = "r",
-  xaxt = "n", yaxt = "n"
-)
-axis(side = "1", at = 1:10 * 5730, labels = paste0(1:10, "T"))
-axis(side = "2", at = c(0.25, 0.50, 1), 
-     labels = expression(frac("N"[0], 4), frac("N"[0], 2), "N"[0]))
-# axis(side = "4", at = c(0.25, 0.50, 1), labels = c("A/4", "A/2", "A"))
-# mtext("Activité", side = 4, line = 3, las = 0)
-lines(x = c(0, 1, 1) * i, y = c(0.50, 0.50, -1), type = "l", lty = 2, col = "red")
-lines(x = c(0, 2, 2) * i, y = c(0.25, 0.25, -1), type = "l", lty = 2, col = "red")
-```
+{% include figure.html filename="decroissance-1.png" caption="Figure 1 : Décroissance exponentielle d'une quantité initiale d'atomes radioactifs au cours du temps (exprimé en périodes radioactives)." %}
 
 Le carbone 14 est produit naturellement en haute atmosphère sous l'effet des rayonnements cosmiques. Il est ensuite progressivement absorbé par les organismes vivants au fil de la chaîne trophique (en commençant par les organismes photosynthétiques). On considère alors que la teneur en <sup>14</sup>C dans les organismes vivants est constante et à l'équilibre avec la teneur atmosphérique[^10].
 
@@ -103,65 +73,7 @@ Le chronomètre que constitue la méthode du radiocarbone n'a donc pas un rythme
 
 L'utilisation du postulat de Libby demeure néanmoins la seule façon accessible pour estimer la quantité initiale de <sup>14</sup>C à la fermeture du système. Il est donc nécessaire de réaliser une opération dite de *calibration* pour transformer un âge conventionnel en âge calendaire. Cette opération est réalisée à l'aide d'une courbe[^4] dont l'estimation est régulièrement mise à jour par la communauté scientifique[^5]. La courbe de calibration est construite en datant des échantillons à la fois par le radiocarbone et par une méthode indépendante, offrant ainsi une table d'équivalence entre temps radiocarbone et temps calendaire (fig. 2B).
 
-```{r intcal, echo=FALSE, fig.width=7, fig.height=3.5, fig.cap="Figure 2 : Âges mesurées par le radiocarbone en fonction des âges calendaires attendus. (A) *Curve of Knowns*, âges radiocarbones d'objets archéologiques dont l'âge calendaire est connu par des méthodes indépendantes (d'après Arnold et Libby, 1949). La droite 1:1, pour laquelle un âge conventionnel est égal à un âge calendaire, est représentée en tirets. (B) Courbes de calibration IntCal09, IntCal13 et IntCal20 (Reimer *et al.* 2009, 2013 et 2020). L'écart à la droite 1:1 (tirets) est d'autant plus marqué que les âges sont anciens."}
-arnold <- read.table("data/arnold1949.csv", sep = ";", dec = ".", header = TRUE)
-arnold$age_expected <- arnold$age_expected / 1000
-arnold$age_expected_error <- arnold$age_expected_error / 1000
-arnold$age_found <- arnold$age_found / 1000
-arnold$age_found_error <- arnold$age_found_error / 1000
-
-intcal09 <- read.table("data/intcal09.14c", sep = ",", dec = ".",
-                       header = FALSE, skip = 11)
-intcal13 <- read.table("data/intcal13.14c", sep = ",", dec = ".",
-                       header = FALSE, skip = 11)
-intcal20 <- read.table("data/intcal20.14c", sep = ",", dec = ".",
-                       header = FALSE, skip = 11)
-par(mfrow = c(1, 2), mar = c(4, 4, 1, 1) + 0.1, las = 1)
-plot(
-  x = arnold$age_expected[-1],
-  y = arnold$age_found[-1],
-  type = "p", pch = 16, col = "black",
-  xlim = c(5, 1), ylim = c(1, 5),
-  xlab = "Âge calendaire (ka BP)",
-  ylab = "Âge conventionnel (ka BP)",
-  asp = 1
-)
-# fit <- lm(age_found ~ age_expected, data = arnold)
-# abline(fit, lty = 2, col = "red")
-segments(x0 = arnold$age_expected,
-         y0 = arnold$age_found - arnold$age_found_error,
-         x1 = arnold$age_expected,
-         y1 = arnold$age_found + arnold$age_found_error)
-segments(x0 = arnold$age_expected - arnold$age_expected_error,
-         y0 = arnold$age_found,
-         x1 = arnold$age_expected - arnold$age_expected_error,
-         y1 = arnold$age_found)
-abline(a = 0, b = 1, col = "red", lty = 2)
-mtext("A", side = 2, line = 3, at = 5, font = 2)
-plot(
-  x = intcal09[, 1] / 1000,
-  y = intcal09[, 2] / 1000,
-  type = "l", lty = 1, col = "#DDAA33",
-  xlab = "Âge calendaire (ka BP)",
-  ylab = "Âge conventionnel (ka BP)",
-  xlim = rev(range(intcal20[, 1] / 1000)),
-  asp = 1
-)
-lines(
-  x = intcal13[, 1] / 1000,
-  y = intcal13[, 2] / 1000,
-  type = "l", lty = 1, col = "#BB5566",
-)
-lines(
-  x = intcal20[, 1] / 1000,
-  y = intcal20[, 2] / 1000,
-  type = "l", lty = 1, col = "#004488",
-)
-abline(a = 0, b = 1, lty = 2, col = "black")
-mtext("B", side = 2, line = 3, at = 51, font = 2)
-legend("topright", legend = c("IntCal09", "IntCal13", "IntCal20"),
-       col = c("#DDAA33", "#BB5566", "#004488"), lty = 1)
-```
+{% include figure.html filename="intcal-1.png" caption="Figure 2 : Âges mesurées par le radiocarbone en fonction des âges calendaires attendus. (A) *Curve of Knowns*, âges radiocarbone d'objets archéologiques dont l'âge calendaire est connu par des méthodes indépendantes (d'après Arnold et Libby, 1949). La droite 1:1, pour laquelle un âge conventionnel est égal à un âge calendaire, est représentée en tirets. (B) Courbes de calibration IntCal09, IntCal13 et IntCal20 (Reimer *et al.* 2009, 2013 et 2020). L'écart à la droite 1:1 (tirets) est d'autant plus marqué que les âges sont anciens." %}
 
 ## Comment calibrer ?
 
@@ -176,175 +88,17 @@ Seuls deux paramètres sont nécessaires pour caractériser la distribution des 
 
 Ainsi, si on exprime l'incertitude d'un âge conventionnel en fonction de l'écart-type, il y a 68 % de chance que l'intervalle à $1\sigma$ contienne l'âge conventionnel vrai. De même, l'intervalle à $2\sigma$ a 95 % de chance de contenir l'âge conventionnel vrai. L'intervalle à $1\sigma$ est moins dispersé, mais a moins de chance d'être juste qu'à $2\sigma$ : la plage de valeurs retenues est plus resserrée, mais elle a moins de chance de contenir l'âge conventionnel vrai.
 
-```{r gauss, echo=FALSE, fig.width=7, fig.height=2.5, fig.cap="Figure 3 : Loi normale de moyenne 0 et d'écart-type 1 avec les plâge de normalité aux niveaux de confiance 68, 95 et 99 %. La distribution des valeurs est telle que la dispersion est symétrique autour de la tendance centrale."}
-x <- seq(-50, 50, by = 0.1)
-y <- dnorm(x, mean = 0, sd = 1)
-
-p <- function() {
-  plot(x = NULL, y = NULL, type = "n", xlim = c(-4, 4), ylim = c(0, 0.4),
-       xlab = "", ylab = "", xaxt = "n", yaxt = "n")
-  axis(side = 1, at = -3:3,
-       labels = expression("-"*3*sigma, "-"*2*sigma, "-"*sigma, 0, 
-                           sigma, 2*sigma, 3*sigma))
-}
-f <- function(x, y, start, stop, fill) {
-  s <- which(x >= start & x <= stop)
-  polygon(
-    x = c(x[s], rev(x[s])),
-    y = c(y[s], rep(0, length(s))),
-    col = fill, border = NA
-  )
-}
-
-par(mfrow = c(1, 3), mar = c(2, 1, 1, 1) + 0.1, las = 1)
-p()
-f(x, y, -1, 1, "#DDAA33")
-lines(x = x, y = y, type = "l", lty = 1, lwd = 1.5)
-text(x = 0, y = 0.2, labels = "68.3 %", col = "white", cex = 1.2, font = 2)
-p()
-f(x, y, -2, 2, "#BB5566")
-lines(x = x, y = y, type = "l", lty = 1, lwd = 1.5)
-text(x = 0, y = 0.2, labels = "95.4 %", col = "white", cex = 1.2, font = 2)
-p()
-f(x, y, -3, 3, "#004488")
-lines(x = x, y = y, type = "l", lty = 1, lwd = 1.5)
-text(x = 0, y = 0.2, labels = "99.7 %", col = "white", cex = 1.2, font = 2)
-```
+{% include figure.html filename="gauss-1.png" caption="Figure 3 : Loi normale de moyenne 0 et d'écart-type 1 avec les plage de normalité aux niveaux de confiance 68 %, 95 % et 99 %. La distribution des valeurs est telle que la dispersion est symétrique autour de la tendance centrale." %}
 
 L'approche la plus élémentaire pour la calibration d'un âge radiocarbone consiste à intercepter la courbe de calibration entre les bornes d'incertitude ($t - \Delta t$ et $t + \Delta t$ dans le cas à $1\sigma$) pour obtenir l'intervalle d'âges calendaires correspondants. Ceci est illustré par la figure 4, qui présente la calibration d'un âge conventionnel par interception d'une courbe de calibration (train plein) dont l'incertitude est figurée par un bandeau gris. Les âges conventionnels et calendaires sont figurés à $1\sigma$ (bandes noir) et à $2\sigma$ (bandes hachurée).
 
-```{r calibration, echo=FALSE, fig.width=6, fig.height=6, fig.cap="Figure 4 : Calibration d'un âge conventionnel de 2725 ± 50 ans BP par interception de la courbe de calibration IntCal20."}
-# bronze <- rcarbon::calibrate(2725, 50, calMatrix = TRUE, verbose = FALSE)
-par(mar = c(4, 4, 1, 1) + 0.1, las = 1)
-plot(
-  x = NULL, y = NULL,
-  type = "n",
-  xlab = "Âge calendaire (années BC)",
-  ylab = "Âge conventionnel (années BP)",
-  xlim = c(1100, 750),
-  ylim = c(2550, 2900),
-  asp = 1, xaxs = "i", yaxs = "i"
-)
-polygon(
-  x = c(intcal20[, 1], rev(intcal20[, 1])) - 1950,
-  y = c(intcal20[, 2] - intcal20[, 3], rev(intcal20[, 2] + intcal20[, 3])),
-  col = "grey", border = NA, lty = 3
-)
-lines(
-  x = (intcal20[, 1] - 1950),
-  y = intcal20[, 2],
-  type = "l", lty = 1, col = "black", lwd = 1.5
-)
-x <- c(915, 812, 986, 802)
-segments(
-  x0 = rep(2000, 4), 
-  x1 = x,
-  y0 = c(50, -50, 100, -100) + 2725, 
-  y1 = c(50, -50, 100, -100) + 2725, 
-  lty = c(2, 2, 2, 2)
-)
-segments(
-  x0 = x, 
-  x1 = x,
-  y0 = c(50, -50, 100, -100) + 2725, 
-  y1 = rep(0, 4), 
-  lty = c(2, 2, 2, 2)
-)
-shape::Arrowhead(
-  x0 = 1100 - (1100 - x) / 2,
-  y0 = c(50, -50, 100, -100) + 2725,
-  arr.length = 0.2,
-  arr.adj = 1, arr.type	= "triangle"
-)
-rect(
-  xleft = c(1100, x[[4L]]), ybottom = c(2725 - 100, 2550),
-  xright = c(1090, x[[3L]]), ytop = c(2725 + 100, 2560),
-  col = "black", border = "black", density = 10, angle = 45
-)
-rect(
-  xleft = c(1100, x[[2L]]), ybottom = c(2725 - 50, 2550),
-  xright = c(1090, x[[1L]]), ytop = c(2725 + 50, 2560),
-  col = "black", border = "black"
-)
-legend("topright", legend = expression(1*sigma, 2*sigma),
-       density = c(NA, 10), fill = c(NULL, "black"))
-```
+{% include figure.html filename="calibration-1.png" caption="Figure 4 : Calibration d'un âge conventionnel de 2725 ± 50 ans BP par interception de la courbe de calibration IntCal20." %}
 
 Cette approche ne tient cependant pas compte du fait qu'un âge radiocarbone est décrit par une distribution normale. Dans la plage définie par l'âge radiocarbone plus ou moins son incertitude, toutes les valeurs n'ont la même probabilité de coïncider avec l'âge radiocarbone vrai, or la calibration par simple interception suppose l'inverse. De fait, l'approche aujourd'hui courante[^9] consiste à prendre également en compte la distribution normale des âges radiocarbone. On trouve parfois l'expression de *calibration probabiliste* pour la désigner. Cette méthode de calibration recourt à des méthodes numériques et la distribution des âges calendaires qui en résulte n'est pas équiprobable (fig. 5).
 
 S'il est aisé de décrire un âge conventionnel et son incertitude avec une loi normale, il en va autrement d'un âge calendaire une fois calibré. Il n'est en effet pas possible de décrire la distribution d'un âge calendaire avec une loi de probabilité particulière, comme on peut le constater à la figure 5. Celle-ci présente en effet la calibration d'un âge conventionnel situé dans ce que l'on appelle communément le "plateau de l'âge du Fer". Un plateau est en effet bien visible sur cette partie de la courbe de calibration (fig. 5 en haut à droite). Si la valeur et l'incertitude d'un âge radiocarbone suffisent à le décrire, la nature non linéaire ou en dents de scie de la courbe de calibration ne permet pas d'exprimer un âge calibré autrement que sous la forme d'un intervalle.
 
-```{r hallstatt, echo=FALSE, fig.width=6, fig.height=6, fig.cap="Figure 5 : Distributions d'un âge radiocarbone de 2450 ± 75 ans BP avant et après calibration, respectivement en haut à gauche et en bas à droite. En haut à droite : extrait de la courbe de calibration IntCal20 (trait plein) et erreur associée (bandeau gris)."}
-layout_matrix <- matrix(c(2, 4, 1, 3), nrow = 2, ncol = 2)
-layout(layout_matrix, widths = c(1, 2), heights = c(2, 1))
-
-## InCal20
-par(mar = c(4, 4, 1, 1) + 0.1, las = 1)
-plot(
-  x = NULL, y = NULL,
-  type = "n",
-  xlab = "Âge calendaire (années BC)",
-  ylab = "",
-  xlim = c(900, 200),
-  ylim = c(2150, 2850),
-  asp = 1
-)
-mtext("Âge conventionnel (années BP)", side = 2, line = 3.5, las = 0, cex = 0.8)
-polygon(
-  x = c(intcal20[, 1], rev(intcal20[, 1])) - 1950,
-  y = c(intcal20[, 2] - intcal20[, 3], rev(intcal20[, 2] + intcal20[, 3])),
-  col = "grey", border = NA, lty = 3
-)
-lines(
-  x = (intcal20[, 1] - 1950),
-  y = intcal20[, 2],
-  type = "l", lty = 1, col = "black", lwd = 1.5
-)
-
-## Âge conventionnel
-x <- seq(0, 50000, by = 1)
-y <- dnorm(x, mean = 2450, sd = 75)
-plot(
-  x = NULL,
-  y = NULL,
-  type = "n",
-  ylim = c(2150, 2850),
-  xlim = c(0, 0.006),
-  ylab = "Âge conventionnel (années BP)",
-  xlab = "Probabilité",
-)
-polygon(
-  y = c(x, rev(x)),
-  x = c(y, rep(0, length(y))),
-  col = "grey", border = NA, lty = 3
-)
-lines(
-  x = y, 
-  y = x,
-  type = "l", lty = 1, lwd = 1.5, col = "black"
-)
-
-## Âge calendaire
-iron <- rcarbon::calibrate(2450, 75, calMatrix = TRUE, 
-                           verbose = FALSE, normalised = TRUE)
-x_cal <- as.numeric(rownames(iron$calmatrix)) - 1950
-y_cal <- iron$calmatrix[, 1]
-plot(
-  x = x_cal, 
-  y = y_cal,
-  type = "n",
-  xlab = "Âge calendaire (années BC)",
-  ylab = "",
-  xlim = c(900, 200)
-)
-polygon(
-  x = c(x_cal, rev(x_cal)),
-  y = c(y_cal, rep(0, length(y_cal))),
-  col = "grey", border = "transparent", lty = 1, lwd = 1.5
-)
-lines(x = x_cal, y = y_cal, type = "l", lty = 1, col = "black", lwd = 1.5)
-mtext("Probabilité", side = 2, line = 3.5, las = 0, cex = 0.8)
-```
+{% include figure.html filename="hallstatt-1.png" caption="Figure 5 : Distributions d'un âge radiocarbone de 2450 ± 75 ans BP avant et après calibration, respectivement en haut à gauche et en bas à droite. En haut à droite : extrait de la courbe de calibration IntCal20 (trait plein) et erreur associée (bandeau gris)." %}
 
 L'intervalle auquel appartient un âge calendaire résulte à la fois de l'incertitude de l'âge conventionnel, de l'allure de la courbe de calibration et de l'incertitude associée à cette dernière. Cet intervalle, entre les bornes duquel l'âge calendaire a une probabilité donnée d'être compris, peut être obtenu de deux manières distinctes (fig. 6) :
 
@@ -355,152 +109,7 @@ Lorsque la distribution d'un âge calibré est multimodale (en dents de scie), l
 
 Il existe des périodes qui sont plus ou moins propices à des datations radiocarbone, en fonction de l'allure de la courbe. Le cas le moins favorable est l'existence de plateaux au sein de la courbe de calibration. Un cas typique est le plateau de l'Âge du Fer (fig. 5). Par exemple, un âge conventionnel de 2450 ± 75 ans BP correspond, une fois calibré à 95 % (intervalle HPD), à un âge calendaire compris entre 2719 et 2353 ans BP (soit 769-403 avant notre ère). Ainsi, malgré un âge conventionnel avec une incertitude assez faible (3 %), l'âge calendaire correspondant a 95 % de chance de se trouver dans un intervalle de temps qui couvre la quasi-totalité du premier Âge du Fer (fig. 5). En réalisant la calibration à 68 % (intervalle HPD), on se retrouve confronté à une autre difficulté liée aux oscillations de la courbe de calibration. L'âge calendaire a 68 % de chance d'appartenir à l'union des intervalles 748-684 (18 %), 665-637 (8 %), 586-580 (2 %), 568-452 (32 %) et 444-415 (8 %) avant notre ère et non à un unique intervalle (fig. 6).
 
-```{r hpd, echo=FALSE, fig.width=6, fig.height=6, fig.cap="Figure 6 : Estimation des intervalles calibrés. Les deux graphiques du haut illustrent l'estimation des régions de plus hautes densités à 68 % et 95 %. Le graphique du bas permet de comparer les intervalles HPD ainsi obtenus et les intervalles de crédibilités correspondants (traits pleins)."}
-col_red <- rgb(221, 170, 51, alpha = 127, maxColorValue = 255)
-col_yellow <- rgb(187, 85, 102, alpha = 127, maxColorValue = 255)
-
-y_sorted <- sort(y_cal, decreasing = TRUE)
-# plot(y = y_sorted, x = cumsum(y_sorted))
-i_68 <- min(which(cumsum(y_sorted) >= sum(y_cal) * 0.683))
-alpha_68 <- y_sorted[[i_68]]
-i_95 <- min(which(cumsum(y_sorted) >= sum(y_cal) * 0.954))
-alpha_95 <- y_sorted[[i_95]]
-
-set.seed(12345)
-y_sampled <- sample(x_cal, size = 100000, replace = TRUE, prob = y_cal)
-cred_68 <- quantile(y_sampled, prob = c(0.1585, 1 - 0.1585))
-cred_95 <- quantile(y_sampled, prob = c(0.023, 1 - 0.023))
-
-## 1 sigma
-layout_matrix <- matrix(c(1, 2, 3), nrow = 3, ncol = 1)
-layout(layout_matrix, heights = c(2, 2, 1))
-par(mar = c(4, 5, 1, 1) + 0.1, las = 1)
-plot(
-  x = x_cal, 
-  y = y_cal,
-  type = "n",
-  xlab = "Âge calendaire (années BC)",
-  ylab = "",
-  xlim = c(900, 200)
-)
-mtext("Probabilité", side = 2, line = 4, las = 0, cex = 0.7)
-s1 <- list(
-  a = which(x_cal <= 2698 - 1950 & x_cal >= 2634 - 1950),
-  b = which(x_cal <= 2615 - 1950 & x_cal >= 2587 - 1950),
-  c = which(x_cal <= 2536 - 1950 & x_cal >= 2530 - 1950),
-  d = which(x_cal <= 2518 - 1950 & x_cal >= 2402 - 1950),
-  e = which(x_cal <= 2394 - 1950 & x_cal >= 2365 - 1950)
-)
-# round(unlist(lapply(X = s1, FUN = function(s, y) sum(y[s]), y = y_cal)) * 100)
-invisible(
-  lapply(
-    X = s1,
-    FUN = function(s, x, y) {
-      polygon(
-        x = c(x[s], rev(x[s])),
-        y = c(y[s], rep(alpha_68, length(y[s]))),
-        col = col_red, border = NA, lty = 3
-      )
-      polygon(
-        x = c(x[s], rev(x[s])),
-        y = c(y[s], rep(0, length(y[s]))),
-        col = col_red, border = NA, lty = 3
-      )
-    },
-    x = x_cal,
-    y = y_cal
-  )
-)
-lines(x = x_cal, y = y_cal, lty = 1, lwd = 1.5)
-abline(h = alpha_68, lty = 2)
-segments(
-  x0 = c(2698, 2634, 2615, 2587, 2536, 2530, 2518, 2402, 2394, 2365) - 1950,
-  y0 = rep(alpha_68, 10),
-  x1 = c(2698, 2634, 2615, 2587, 2536, 2530, 2518, 2402, 2394, 2365) - 1950,
-  y1 = rep(-1, 10),
-  lty = 2
-)
-
-## 2 sigma
-plot(
-  x = x_cal, 
-  y = y_cal,
-  type = "n",
-  xlab = "Âge calendaire (années BC)",
-  ylab = "",
-  xlim = c(900, 200)
-)
-mtext("Probabilité", side = 2, line = 4, las = 0, cex = 0.7)
-s2 <- which(x_cal >= 2353 - 1950 & x_cal <= 2719 - 1950)
-polygon(
-  x = c(x_cal[s2], rev(x_cal[s2])),
-  y = c(y_cal[s2], rep(alpha_95, length(y_cal[s2]))),
-  col = col_yellow, border = NA, lty = 3
-)
-polygon(
-  x = c(x_cal[s2], rev(x_cal[s2])),
-  y = c(y_cal[s2], rep(0, length(y_cal[s2]))),
-  col = col_yellow, border = NA, lty = 3
-)
-lines(x = x_cal, y = y_cal, lty = 1, lwd = 1.5)
-abline(h = alpha_95, lty = 2)
-segments(
-  x0 = c(2353, 2719) - 1950,
-  y0 = rep(alpha_95, 2),
-  x1 = c(2353, 2719) - 1950,
-  y1 = rep(-1, 2),
-  lty = 2
-)
-
-## Comparaison 1 vs 2 sigma
-plot(
-  x = NULL, 
-  y = NULL,
-  type = "n",
-  xlab = "Âge calendaire (années BC)",
-  ylab = "",
-  xlim = c(900, 200),
-  ylim = c(0, 5),
-  yaxt = "n",
-  bty = "n"
-)
-legend("topright", legend = c("HPDI 68%", "HPDI 95%", "IC"), 
-       lty = c(NA, NA, 1), lwd = 2, fill = c("#DDAA33", "#BB5566", NA), 
-       border = c("black", "black", NA), x.intersp = c(-0.5, -0.5, 1), 
-       bty = "n")
-## HPD
-invisible(
-  lapply(
-    X = s1,
-    FUN = function(s, x, y) {
-      polygon(
-        x = c(x[s], rev(x[s])),
-        y = rep(c(3, 4), each = length(y[s])),
-        col = "#DDAA33", border = NA, lty = 3
-      )
-    },
-    x = x_cal,
-    y = y_cal
-  )
-)
-polygon(
-  x = c(x_cal[s2], rev(x_cal[s2])),
-  y = rep(c(1, 2), each = length(y_cal[s2])),
-  col = "#BB5566", border = NA, lty = 3
-)
-## Credibility interval
-arrows(
-  x0 = c(cred_68[[1]], cred_95[[1]]),
-  y0 = c(3.5, 1.5),
-  x1 = c(cred_68[[2]], cred_95[[2]]),
-  y1 = c(3.5, 1.5),
-  lty = 1,
-  lwd = 2,
-  code = 3,
-  angle = 90,
-  length = 0.02
-)
-```
+{% include figure.html filename="hpd-1.png" caption="Figure 6 : Estimation des intervalles calibrés. Les deux graphiques du haut illustrent l'estimation des régions de plus hautes densités à 68 % et 95 %. Le graphique du bas permet de comparer les intervalles HPD ainsi obtenus et les intervalles de crédibilités correspondants (traits pleins)." %}
 
 Il est courant dans certains contextes de conserver des âges calibrés exprimés en années BP, dans ce cas il est recommandé de préciser *cal* BP pour éviter toute confusion du lecteur. Ces âges calendaires en années BP peuvent être convertis en dates exprimées avant ou après notre ère (BC/AD, *before Christ/anno Domini*). Pour cela, il suffit d'utiliser la règle de calcul suivante.
 
@@ -540,12 +149,14 @@ Le tableau 1 présente ainsi les âges radiocarbone obtenus ($1\sigma$) dans le 
 
 Après avoir installé le package rcarbon, la première étape consiste à créer le tableau de données (`data.frame`) où chaque ligne correspond à un laboratoire, les 4 premières colonnes correspondent aux âges conventionnels et les 4 dernières aux incertitudes.
 
-```{r, eval=FALSE}
+
+```r
 ## Installation du package
 install.packages("rcarbon")
 ```
 
-```{r}
+
+```r
 ## Import des données
 turin <- matrix(
   data = c( 
@@ -563,7 +174,8 @@ rownames(turin) <- c("Arizona", "Oxford", "Zurich")
 
 Ensuite, on remet en forme les données dans un `array`, obtenant ainsi un tableau à 3 dimensions : la 1<sup>ère</sup> dimension (lignes) correspond aux laboratoires, la 2<sup>ème</sup> dimension (colonnes) correspond aux échantillons, la 3<sup>ème</sup> dimension permet de distinguer les âges et leurs incertitudes.
 
-```{r}
+
+```r
 dim(turin) <- c(3, 4, 2)
 dimnames(turin) <- list(
   c("Arizona", "Oxford", "Zurich"),
@@ -574,6 +186,22 @@ dimnames(turin) <- list(
 turin
 ```
 
+```
+## , , age
+## 
+##         Ech. 1 Ech. 2 Ech. 3 Ech. 4
+## Arizona    646    927   1995    722
+## Oxford     750    940   1980    755
+## Zurich     676    941   1940    685
+## 
+## , , erreur
+## 
+##         Ech. 1 Ech. 2 Ech. 3 Ech. 4
+## Arizona     31     32     46     43
+## Oxford      30     30     35     30
+## Zurich      24     23     30     34
+```
+
 Avant de calibrer les âges radiocarbone obtenus, plusieurs questions préalables peuvent être explorées.
 
 ### Comment visualiser les données produites ?
@@ -582,7 +210,8 @@ Dans le cas présent, plusieurs laboratoires ont daté les mêmes objets. Dans u
 
 Une fois les données importées et mises en forme, une première approche consiste à les visualiser. On peut ainsi se faire une première idée quant à la compatibilité des résultats fournis par les différents laboratoires pour chaque objet daté. Le code suivant permet de générer la figure 7 où sont figurées les distributions des âges conventionnels de chaque échantillon.
 
-```{r turin-uncal, fig.width=6, fig.height=6, fig.cap="Figure 7 : Distribution des âges conventionnels par laboratoire."}
+
+```r
 ## On fixe les paramètres graphiques
 ## 'mfrow' permet d'afficher les 4 graphiques sur 2 lignes et 2 colonnes
 par(mfrow = c(2, 2), mar = c(3, 4, 0, 0) + 0.1, las = 1)
@@ -614,6 +243,8 @@ for (j in 1:ncol(turin)) {
 legend("topright", legend = rownames(turin), lty = 1, lwd = 1.5, col = couleurs)
 ```
 
+{% include figure.html filename="turin-uncal-1.png" caption="Figure 7 : Distribution des âges conventionnels par laboratoire." %}
+
 La figure 7 permet de constater que l'échantillon 1 présente des âges ne se recouvrant que faiblement entre eux, au contraire des trois autres échantillons datés. Partant de cette première observation, on va donc tester l'homogénéité des résultats des différents laboratoires.
 
 ### Les résultats des différents laboratoires sont-ils homogènes ?
@@ -635,7 +266,8 @@ $T$ est une variable aléatoire qui suit une loi du $\chi^2$ avec $n-1$ degrés 
 
 Le code suivant permet de calculer pour chaque échantillon, son âge moyen, l'incertitude associée, la statistique $T$ et la valeur $p$.
 
-```{r}
+
+```r
 ## On construit un data.frame pour stocker les résultats
 ## Chaque ligne correspond à un échantillon
 ## Les colonnes correspondent à :
@@ -672,6 +304,14 @@ for (j in 1:ncol(turin)) {
 dates
 ```
 
+```
+##              age   erreur      chi2          p
+## Ech. 1  689.1192 16.03791 6.3518295 0.04175589
+## Ech. 2  937.2838 15.85498 0.1375815 0.93352200
+## Ech. 3 1964.4353 20.41230 1.3026835 0.52134579
+## Ech. 4  723.8513 19.93236 2.3856294 0.30336618
+```
+
 On constate que l'échantillon 1 présente une valeur $p$ de 0,04. Comme celle-ci est inférieure au seuil $\alpha$ fixé, l'hypothèse $H_0$ peut être rejetée. Cela signifie que les différences observées entre les âges obtenus sur cet échantillon sont significatives. Les valeurs $p$ obtenues pour les autres échantillons sont respectivement de 0,92, 0,52 et 0,30 : l'hypothèse $H_0$ ne peut être donc rejetée dans ces cas.
 
 Cette fluctuation des âges de l'échantillon 1 est vraisemblablement liée à une hétérogénéité des mesures au sein d'un des laboratoires[^12].
@@ -680,7 +320,8 @@ Cette fluctuation des âges de l'échantillon 1 est vraisemblablement liée à u
 
 Conformément aux résultats des tests précédents, les différents âges obtenus pour l'échantillon 1 seront calibrés séparément, tandis que l'on va pouvoir calibrer l'âge moyen des échantillons 2, 3 et 4. La calibration est réalisée avec la fonction `calibrate()` du package rcarbon. On peut ensuite utiliser `summary()` pour obtenir un résumé des âges calibrés. Par défaut, `summary()` affiche des âges en années cal BP.
 
-```{r}
+
+```r
 ## Chargement du package rcarbon
 library(rcarbon)
 
@@ -695,7 +336,16 @@ ages_ech1 <- calibrate(
 
 ## On affiche les âges calibrés à 95%
 summary(ages_ech1, prob = 0.95)
+```
 
+```
+##    DateID MedianBP p_0.95_BP_1 p_0.95_BP_2
+## 1 Arizona      600  667 to 623  612 to 555
+## 2  Oxford      682  725 to 660    NA to NA
+## 3  Zurich      648  671 to 633  589 to 563
+```
+
+```r
 ## On calibre les âges moyens des échantillons 2, 3 et 4
 ages_ech234 <- calibrate(
   x = dates$age[-1],
@@ -709,21 +359,63 @@ ages_ech234 <- calibrate(
 summary(ages_ech234, prob = 0.95)
 ```
 
+```
+##   DateID MedianBP  p_0.95_BP_1  p_0.95_BP_2
+## 1 Ech. 2      850   910 to 841   837 to 792
+## 2 Ech. 3     1893 1974 to 1966 1943 to 1829
+## 3 Ech. 4      670   682 to 653     NA to NA
+```
+
 Certains des âges calibrés à 95 % appartiennent à l'union de plusieurs intervalles HPD. La fonction `hpdi()` permet de calculer les intervalles HPD pour chaque âge calibrés (attention, `hpdi()` renvoie des âges exprimés en années cal BP) et la probabilité associée à chaque intervalle :
 
-```{r}
+
+```r
 ## Intervalles HPD à 95 % des âges de l'échantillon 1
 (hpd_ech1 <- hpdi(ages_ech1, credMass = 0.95))
+```
 
+```
+## [[1]]
+##      startCalBP endCalBP      prob
+## [1,]        667      623 0.4298236
+## [2,]        612      555 0.5305958
+## 
+## [[2]]
+##      startCalBP endCalBP      prob
+## [1,]        725      660 0.9505207
+## 
+## [[3]]
+##      startCalBP endCalBP      prob
+## [1,]        671      633 0.5776311
+## [2,]        589      563 0.3795208
+```
+
+```r
 ## Intervalles HPD à 95 % des âges des échantillons 2, 3 et 4
 (hpd_ech234 <- hpdi(ages_ech234, credMass = 0.95))
+```
+
+```
+## [[1]]
+##      startCalBP endCalBP      prob
+## [1,]        910      841 0.5442044
+## [2,]        837      792 0.4058215
+## 
+## [[2]]
+##      startCalBP endCalBP       prob
+## [1,]       1974     1966 0.02250843
+## [2,]       1943     1829 0.93019646
+## 
+## [[3]]
+##      startCalBP endCalBP      prob
+## [1,]        682      653 0.9534739
 ```
 
 ### Comment interpréter ces âges ?
 
 On s'intéresse en premier aux échantillons de contrôle 2, 3 et 4. Les distributions des âges conventionnels (axe des ordonnées) et calendaires (axe des abscisses) peuvent être représentés avec la courbe de calibration à l'aide de la fonction `plot()`. La figure 8 permet alors de constater que leurs âges calibrés sont en accord avec les datations connues par ailleurs.
 
-```{r turin-cal, fig.width=7, fig.height=3.5, fig.cap="Figure 8 : Distribution des âges conventionnels et calendaires des âges moyens des échantillons 2, 3 et 4. Les zones en gris foncé correspondent à l'intervalle HPD à 95%. Courbe IntCal20."}
+```r
 ## On fixe les paramètres graphiques
 ## 'mfrow' permet d'afficher les 3 graphiques sur 1 ligne et 3 colonnes
 par(mfrow = c(1, 3), mar = c(4, 1, 3, 1) + 0.1, las = 1)
@@ -743,13 +435,15 @@ for (i in 1:3) {
 }
 ```
 
+{% include figure.html filename="turin-cal-1.png" caption="Figure 8 : Distribution des âges conventionnels et calendaires des âges moyens des échantillons 2, 3 et 4. Les zones en gris foncé correspondent à l'intervalle HPD à 95%. Courbe IntCal20." %}
+
 * L'âge calendaire de l'échantillon 2 a 95 % de chance (intervalle HPD) de se trouver dans l'union des intervalles [1040;1109] (54 %) et [1113;1158] (40 %), en accord avec une datation attendue autour des XI<sup>e</sup>-XII<sup>e</sup> siècles de notre ère.
 * L'âge calendaire de l'échantillon 3 a 95 % de chance (intervalle HPD) de se trouver dans l'union des intervalles [-25;-17] (2 %) et [7;121] (93 %), en accord avec une datation attendue entre -110 et 75.
 * L'âge calendaire de l'échantillon 4 a 95 % de chance (intervalle HPD) de se trouver entre 1267 et 1297, en accord avec une datation attendue entre 1290 et 1310.
 
 Les âges radiocarbone obtenus par les différents laboratoires pour l'échantillon 1 ont été calibrés séparément. La fonction `multiplot()` permet de représenter simultanément les distributions des âges calibrés (exprimés en années BC/AD) pour les trois laboratoires (fig. 9).
 
-```{r turin-plot, fig.width=6, fig.height=5, fig.cap="Figure 9 : Distribution des âges calendaires de l'échantillon 1 obtenus par les différents laboratoires. Les zones en gris foncé correspondent à l'intervalle HPD à 95%. Courbe IntCal20."}
+```r
 ## On fixe les paramètres graphiques
 par(mar = c(4, 1, 0, 1) + 0.1)
 
@@ -764,6 +458,8 @@ multiplot(
   xlab = "années AD"
 )
 ```
+
+{% include figure.html filename="turin-plot-1.png" caption="Figure 9 : Distribution des âges calendaires de l'échantillon 1 obtenus par les différents laboratoires. Les zones en gris foncé correspondent à l'intervalle HPD à 95%. Courbe IntCal20." %}
 
 Si l'analyse des âges conventionnels obtenus par les différents laboratoires pour l'échantillon 1 révèle une certaine hétérogénéité, on constate néanmoins que les âges calibrés appartiennent tous aux XIII<sup>e</sup> et XIV<sup>e</sup> siècles. Bien qu'on ne puisse donner un intervalle plus précis, ces résultats sont en accord avec l'apparition des premières mentions écrites du Suaire et permettent raisonnablement d'exclure l'hypothèse d'authenticité de la relique.
 
