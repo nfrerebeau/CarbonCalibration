@@ -21,7 +21,7 @@ topics:
 abstract: Cette leçon explique comment calibrer des âges radiocarbone avec le langage R.
 avatar_alt:
 doi:
-
+mathjax: true
 output:
   rmarkdown::html_document:
     keep_md: false
@@ -83,7 +83,7 @@ Le carbone 14 est produit naturellement en haute atmosphère sous l'effet des ra
 
 Lorsqu'un organisme meurt, les échanges avec le milieu s'arrêtent. En supposant qu'il n'y ait pas de contamination extérieure, on considère que le système est clos : la décroissance radioactive est le seul phénomène affectant la quantité de <sup>14</sup>C contenue dans l'organisme. L'événement daté par le radiocarbone est ainsi la mort de l'organisme.
 
-Sauf à rechercher spécifiquement à quand remonte la mort d'un organisme, le radiocarbone fournit donc un *terminus* pour l'événement archéologique que l'on souhaite positionner dans le temps. C'est-à-dire le moment avant ou après lequel a eu lieu l'événement archéologique ou historique d'intérêt (abandon d'un objet, combustion d'un foyer, dépôt d'une couche sédimentaire, etc.) en fonction des éléments contextuels disponibles (stratigraphie, etc.). Ces éléments contextuels sont d'autant plus important qu'ils participent à l'interprétation des résultats, en s'assurant notamment de l'absence de problèmes d'ordre [taphonomique](https://fr.wikipedia.org/wiki/Taphonomie) et qu'il existe bien une relation univoque entre l'échantillon daté et l'événement d'intérêt[^13].
+Sauf à rechercher spécifiquement à quand remonte la mort d'un organisme, le radiocarbone fournit donc un *terminus* *ante* ou *post quem* pour l'événement archéologique que l'on souhaite positionner dans le temps. C'est-à-dire le moment avant ou après lequel a eu lieu l'événement archéologique ou historique d'intérêt (abandon d'un objet, combustion d'un foyer, dépôt d'une couche sédimentaire, etc.) en fonction des éléments contextuels disponibles (stratigraphie, etc.). Ces éléments contextuels sont d'autant plus importants qu'ils participent à l'interprétation des résultats, en s'assurant notamment de l'absence de problèmes d'ordre [taphonomique](https://fr.wikipedia.org/wiki/Taphonomie) et qu'il existe bien une relation univoque entre l'échantillon daté et l'événement d'intérêt[^13].
 
 Grâce à la loi de décroissance radioactive, si on connaît la quantité initiale ($N_0$) de <sup>14</sup>C contenue dans un organisme à sa mort (instant $t_0$) et la quantité restante de <sup>14</sup>C à un instant $t$, il est possible de mesurer le temps écoulé entre $t_0$ et $t$ : l'âge radiocarbone d'un objet archéologique.
 
@@ -169,7 +169,6 @@ Nous venons donc de voir qu'il était nécessaire de calibrer ses âges radiocar
 Un âge conventionnel (noté ici $t$) est le résultat d'une mesure et, comme il n'existe pas de mesure parfaite, il est toujours accompagné d'un terme correspondant à l'incertitude analytique ($\Delta t$) et exprimé sous la forme $t \pm \Delta t$ (l'âge, *plus ou moins* son incertitude). Cette incertitude résulte de la combinaison des différentes sources d'erreur au sein du laboratoire : il s'agit d'une incertitude *aléatoire* inhérente à la mesure.
 
 Un âge conventionnel est ainsi un *estimateur* du vrai âge radiocarbone de l'objet daté. Si on répète un très grand nombre de fois la datation d'un même échantillon, sa valeur est susceptible de varier et il y a très peu de chance qu'elle coïncide exactement avec l'âge radiocarbone vrai.
-
 Il est donc préférable de s'attacher à un intervalle dont il est hautement probable qu'il contienne la vraie valeur (inconnue) de l'âge conventionnel. De fait, l'incertitude caractérise la dispersion des valeurs qui pourraient raisonnablement être attribuées à l'âge vrai. Un âge conventionnel est la réalisation d'un processus aléatoire, la décroissance radioactive, il peut être modélisé à l'aide d'une loi de probabilité particulière : la [loi normale](https://fr.wikipedia.org/wiki/Loi_normale)[^7].
 
 Seuls deux paramètres sont nécessaires pour caractériser la distribution des valeurs selon une loi normale : la moyenne $\mu$ (tendance centrale) et l'écart-type $\sigma$ (dispersion des valeurs). Les propriétés de la distribution normale sont telles que l'intervalle défini par $\mu \pm \sigma$ contient 67 % des valeurs. Si on multiplie l'écart-type par deux, l'intervalle $\mu \pm 2\sigma$ contient quant à lui 95 % des valeurs (fig. 3).
@@ -211,9 +210,9 @@ lines(x = x, y = y, type = "l", lty = 1, lwd = 1.5)
 text(x = 0, y = 0.2, labels = "99.7 %", col = "white", cex = 1.2, font = 2)
 ```
 
-L'approche la plus élémentaire pour la calibration d'un âge radiocarbone consiste à intercepter la courbe de calibration entre les bornes d'incertitude ($t - \Delta t$ et $t + \Delta t$ dans le cas à $1\sigma$) pour obtenir l'intervalle d'âges calendaires correspondants (fig. 4). Cette approche ne tient cependant pas compte du fait qu'un âge radiocarbone est décrit par une distribution normale. Dans la plage définie par l'âge radiocarbone plus ou moins son incertitude, toutes les valeurs n'ont la même probabilité de coïncider avec l'âge radiocarbone vrai, or la calibration par simple interception suppose l'inverse. De fait, l'approche aujourd'hui courante[^9] consiste à prendre également en compte la distribution normale des âges radiocarbone. On trouve parfois l'expression de *calibration probabiliste* pour la désigner. Cette méthode de calibration recourt à des méthodes numériques et la distribution des âges calendaires qui en résulte n'est pas équiprobable (fig. 5).
+L'approche la plus élémentaire pour la calibration d'un âge radiocarbone consiste à intercepter la courbe de calibration entre les bornes d'incertitude ($t - \Delta t$ et $t + \Delta t$ dans le cas à $1\sigma$) pour obtenir l'intervalle d'âges calendaires correspondants. Ceci est illustré par la figure 4, qui présente la calibration d'un âge conventionnel par interception d'une courbe de calibration (train plein) dont l'incertitude est figurée par un bandeau gris. Les âges conventionnels et calendaires sont figurés à $1\sigma$ (bandes noir) et à $2\sigma$ (bandes hachurée).
 
-```{r calibration, echo=FALSE, fig.width=6, fig.height=6, fig.cap="Figure 4 : Calibration d'un âge conventionnel de 2725 ± 50 ans BP par interception de la courbe de calibration IntCal20 (trait plein). L'épaisseur du bandeau gris représente l'incertitude associé à la courbe de calibration."}
+```{r calibration, echo=FALSE, fig.width=6, fig.height=6, fig.cap="Figure 4 : Calibration d'un âge conventionnel de 2725 ± 50 ans BP par interception de la courbe de calibration IntCal20."}
 # bronze <- rcarbon::calibrate(2725, 50, calMatrix = TRUE, verbose = FALSE)
 par(mar = c(4, 4, 1, 1) + 0.1, las = 1)
 plot(
@@ -270,9 +269,11 @@ legend("topright", legend = expression(1*sigma, 2*sigma),
        density = c(NA, 10), fill = c(NULL, "black"))
 ```
 
-S'il est aisé de décrire un âge conventionnel et son incertitude avec une loi normale, il en va autrement d'un âge calendaire une fois calibré. Il n'est en effet pas possible de décrire la distribution d'un âge calendaire avec une loi de probabilité particulière (fig. 5). Ceci est dû à la nature de la courbe de calibration qui n'est pas linéaire, mais présente une allure en dents de scie. Si la valeur et l'incertitude d'un âge radiocarbone suffisent à le décrire, un âge calibré ne peut être exprimé que sous la forme d'un intervalle.
+Cette approche ne tient cependant pas compte du fait qu'un âge radiocarbone est décrit par une distribution normale. Dans la plage définie par l'âge radiocarbone plus ou moins son incertitude, toutes les valeurs n'ont la même probabilité de coïncider avec l'âge radiocarbone vrai, or la calibration par simple interception suppose l'inverse. De fait, l'approche aujourd'hui courante[^9] consiste à prendre également en compte la distribution normale des âges radiocarbone. On trouve parfois l'expression de *calibration probabiliste* pour la désigner. Cette méthode de calibration recourt à des méthodes numériques et la distribution des âges calendaires qui en résulte n'est pas équiprobable (fig. 5).
 
-```{r hallstatt, echo=FALSE, fig.width=6, fig.height=6, fig.cap="Figure 5 : Plateau de l'Âge du Fer. En haut à droite : extrait de la courbe IntCal20 (trait plein). L'épaisseur du bandeau gris représente l'incertitude associée à la courbe de calibration. En haut à gauche : distribution d'un âge radiocarbone de 2450 ± 75 ans BP. En bas à droite : distribution de l'âge radiocarbone calibré (âge calendaire)."}
+S'il est aisé de décrire un âge conventionnel et son incertitude avec une loi normale, il en va autrement d'un âge calendaire une fois calibré. Il n'est en effet pas possible de décrire la distribution d'un âge calendaire avec une loi de probabilité particulière, comme on peut le constater à la figure 5. Celle-ci présente en effet la calibration d'un âge conventionnel situé dans ce que l'on appelle communément le "plateau de l'âge du Fer". Un plateau est en effet bien visible sur cette partie de la courbe de calibration (fig. 5 en haut à droite). Si la valeur et l'incertitude d'un âge radiocarbone suffisent à le décrire, la nature non linéaire ou en dents de scie de la courbe de calibration ne permet pas d'exprimer un âge calibré autrement que sous la forme d'un intervalle.
+
+```{r hallstatt, echo=FALSE, fig.width=6, fig.height=6, fig.cap="Figure 5 : Distributions d'un âge radiocarbone de 2450 ± 75 ans BP avant et après calibration, respectivement en haut à gauche et en bas à droite. En haut à droite : extrait de la courbe de calibration IntCal20 (trait plein) et erreur associée (bandeau gris)."}
 layout_matrix <- matrix(c(2, 4, 1, 3), nrow = 2, ncol = 2)
 layout(layout_matrix, widths = c(1, 2), heights = c(2, 1))
 
@@ -346,14 +347,17 @@ mtext("Probabilité", side = 2, line = 3.5, las = 0, cex = 0.8)
 
 L'intervalle auquel appartient un âge calendaire résulte à la fois de l'incertitude de l'âge conventionnel, de l'allure de la courbe de calibration et de l'incertitude associée à cette dernière. Cet intervalle, entre les bornes duquel l'âge calendaire a une probabilité donnée d'être compris, peut être obtenu de deux manières distinctes (fig. 6) :
 
-* *intervalle à plus hautes densités* (*Highest Posterior Density Interval, HPDI*) : les bornes de l'intervalle correspondent aux régions de la distribution dont la probabilité est supérieure à un seuil $1-\alpha$ désiré (typiquement 95 % ou 68 %).
-* *intervalle de crédibilité* : les bornes de l'intervalle correspondent aux quantiles $q_{\alpha/2}$ et $q_{1-\alpha/2}$ de la distribution.
+* *intervalle à plus hautes densités* (*Highest Posterior Density Interval, HPDI*) : les bornes de l'intervalle correspondent aux régions de la distribution dont la probabilité cumulée est supérieure à un seuil donné.
+* *intervalle de crédibilité* : les bornes de l'intervalle correspondent aux [quantiles](https://fr.wikipedia.org/wiki/Quantile) de la distribution.
 
 Lorsque la distribution d'un âge calibré est multimodale (en dents de scie), l'intervalle à plus hautes densités correspond souvent à l'union de plusieurs intervalle disjoints, au contraire de l'intervalle de crédibilité qui fourni toujours une gamme continue de valeurs[^14]. L'intervalle à plus hautes densités est ainsi souvent plus informatif, raison pour laquelle il est couramment utilisé pour présenter des résultats calibrés.
 
 Il existe des périodes qui sont plus ou moins propices à des datations radiocarbone, en fonction de l'allure de la courbe. Le cas le moins favorable est l'existence de plateaux au sein de la courbe de calibration. Un cas typique est le plateau de l'Âge du Fer (fig. 5). Par exemple, un âge conventionnel de 2450 ± 75 ans BP correspond, une fois calibré à 95 % (intervalle HPD), à un âge calendaire compris entre 2719 et 2353 ans BP (soit 769-403 avant notre ère). Ainsi, malgré un âge conventionnel avec une incertitude assez faible (3 %), l'âge calendaire correspondant a 95 % de chance de se trouver dans un intervalle de temps qui couvre la quasi-totalité du premier Âge du Fer (fig. 5). En réalisant la calibration à 68 % (intervalle HPD), on se retrouve confronté à une autre difficulté liée aux oscillations de la courbe de calibration. L'âge calendaire a 68 % de chance d'appartenir à l'union des intervalles 748-684 (18 %), 665-637 (8 %), 586-580 (2 %), 568-452 (32 %) et 444-415 (8 %) avant notre ère et non à un unique intervalle (fig. 6).
 
 ```{r hpd, echo=FALSE, fig.width=6, fig.height=6, fig.cap="Figure 6 : Estimation des intervalles calibrés. Les deux graphiques du haut illustrent l'estimation des régions de plus hautes densités à 68 % et 95 %. Le graphique du bas permet de comparer les intervalles HPD ainsi obtenus et les intervalles de crédibilités correspondants (traits pleins)."}
+col_red <- rgb(221, 170, 51, alpha = 127, maxColorValue = 255)
+col_yellow <- rgb(187, 85, 102, alpha = 127, maxColorValue = 255)
+
 y_sorted <- sort(y_cal, decreasing = TRUE)
 # plot(y = y_sorted, x = cumsum(y_sorted))
 i_68 <- min(which(cumsum(y_sorted) >= sum(y_cal) * 0.683))
@@ -394,7 +398,12 @@ invisible(
       polygon(
         x = c(x[s], rev(x[s])),
         y = c(y[s], rep(alpha_68, length(y[s]))),
-        col = "#DDAA33", border = NA, lty = 3
+        col = col_red, border = NA, lty = 3
+      )
+      polygon(
+        x = c(x[s], rev(x[s])),
+        y = c(y[s], rep(0, length(y[s]))),
+        col = col_red, border = NA, lty = 3
       )
     },
     x = x_cal,
@@ -425,7 +434,12 @@ s2 <- which(x_cal >= 2353 - 1950 & x_cal <= 2719 - 1950)
 polygon(
   x = c(x_cal[s2], rev(x_cal[s2])),
   y = c(y_cal[s2], rep(alpha_95, length(y_cal[s2]))),
-  col = "#BB5566", border = NA, lty = 3
+  col = col_yellow, border = NA, lty = 3
+)
+polygon(
+  x = c(x_cal[s2], rev(x_cal[s2])),
+  y = c(y_cal[s2], rep(0, length(y_cal[s2]))),
+  col = col_yellow, border = NA, lty = 3
 )
 lines(x = x_cal, y = y_cal, lty = 1, lwd = 1.5)
 abline(h = alpha_95, lty = 2)
@@ -490,13 +504,11 @@ arrows(
 Il est courant dans certains contextes de conserver des âges calibrés exprimés en années BP, dans ce cas il est recommandé de préciser *cal* BP pour éviter toute confusion du lecteur. Ces âges calendaires en années BP peuvent être convertis en dates exprimées avant ou après notre ère (BC/AD, *before Christ/anno Domini*). Pour cela, il suffit d'utiliser la règle de calcul suivante.
 
 <div class="alert alert-warning">
-  Pour convertir en années BC/AD un âge *calibré* (noté $x$) exprimé en années BP :
+  Pour convertir en années BC/AD un âge *calibré* (noté $x$) exprimé en années BP, sachant qu'il n'y pas d'année 0 dans le calendrier grégorien :
   
-  Si l'âge calibré est inférieur à 1950 BP : $1950 - x$ AD
+  * Si l'âge calibré est inférieur à 1950 BP : $1950 - x$ AD
+  * Si l'âge calibré est supérieur ou égal à 1950 BP : $1949 - x$ BC 
   
-  Si l'âge calibré est supérieur ou égal à 1950 BP : $1949 - x$ BC 
-  
-  (il n'y pas d'année 0 dans le calendrier grégorien)
 </div>
 
 On comprend ainsi que ces particularités, si elles sont mal comprises, peuvent rapidement conduire à des surinterprétations. Au cours de l'étude d'un corpus de datations ou lors de sa publication, il est donc particulièrement important de présenter l'ensemble des données et des choix ayant concouru à l'obtention des âges calendaires. L'usage d'outils libres favorise à la fois la transparence et la reproductibilité des résultats, deux aspects particulièrement importants en ce qui concerne la calibration d'âges radiocarbone.
@@ -511,7 +523,9 @@ Plusieurs packages R permettent de réaliser des calibrations d'âges radiocarbo
 
 Afin d'aborder concrètement la question de la calibration d'âges radiocarbone, nous allons nous pencher sur l'exemple de la datation du [Suaire de Turin](https://fr.wikipedia.org/wiki/Suaire_de_Turin#La_datation_par_le_carbone_14_(1988-1989)). Réalisée à la fin des années 1980, cette dernière constitue un cas d'école en matière de datation d'un objet historique par la méthode du radiocarbone. Trois datations indépendantes d'un même prélèvement ont été réalisées en aveugle, avec des échantillons de contrôle.
 
-En avril 1988, un échantillon de tissu est prélevé sur le Suaire de Turin. Trois laboratoires différents ont été sélectionnés l'année précédente et reçoivent chacun un fragment de ce même échantillon. En complément, trois autres tissus dont les âges calendaires sont connus par d'autres méthodes sont également échantillonnés. Ces trois échantillons supplémentaires doivent servir d'échantillons de contrôle, afin de valider les résultats de chaque laboratoire et de s'assurer que les résultats des différents laboratoires sont bien compatibles entre eux. Chaque laboratoire a reçu quatre échantillons et réalisé les mesures en aveugle, sans savoir lequel correspond au Suaire (Damon *et al.*, 1989). Les résultats obtenus sont reproduits dans le tableau 1.
+En avril 1988, un échantillon de tissu est prélevé sur le Suaire de Turin. Trois laboratoires différents ont été sélectionnés l'année précédente et reçoivent chacun un fragment de ce même échantillon. En complément, trois autres tissus dont les âges calendaires sont connus par d'autres méthodes sont également échantillonnés. Ces trois échantillons supplémentaires doivent servir d'échantillons de contrôle, afin de valider les résultats de chaque laboratoire et de s'assurer que les résultats des différents laboratoires sont bien compatibles entre eux. Chaque laboratoire a reçu quatre échantillons et réalisé les mesures en aveugle, sans savoir lequel correspond au Suaire (Damon *et al.*, 1989).
+
+Le tableau 1 présente ainsi les âges radiocarbone obtenus ($1\sigma$) dans le cadre de l'étude du Suaire de Turin (Damon *et al.*, 1989) et ce pour les trois laboratoires (Arizona, Oxford et Zurich). L'échantillon 1 (Éch. 1) correspond au tissu prélevé sur le Suaire de Turin; l'échantillon 2 (Éch. 2) représente un fragment de lin provenant d’une tombe de Qasr Ibrîm en Égypte, daté des XIe-XIIe siècles de notre ère; l'échantillon 3 (Éch. 3) correspond à un fragment de lin associé à une momie de Thèbes (Égypte), daté entre -110 et 75. Enfin, l'échantillon 4 (Éch. 4) est constitué de fils de la chape de St-Louis d'Anjou (France), daté entre 1290 et 1310.
 
 | Laboratoire | Éch. 1   | Éch. 2   | Éch. 3    | Éch. 4   |
 |:------------|:---------|:---------|:----------|:---------|
@@ -519,11 +533,11 @@ En avril 1988, un échantillon de tissu est prélevé sur le Suaire de Turin. Tr
 | Oxford      | 750 ± 30 | 940 ± 30 | 1980 ± 35 | 755 ± 30 |
 | Zurich      | 676 ± 24 | 941 ± 23 | 1940 ± 30 | 685 ± 34 |
 
-*Tableau 1* : âges radiocarbone ($1\sigma$) obtenus dans le cadre de l'étude du Suaire de Turin (Damon *et al.*, 1989). Éch. 1 : Suaire de Turin. Éch. 2 : fragment de lin provenant d'une tombe de Qasr Ibrîm (Égypte), daté des XI<sup>e</sup>-XII<sup>e</sup> siècles de notre ère. Éch. 3 : fragment de lin associé à une momie de Thèbes (Égypte), daté entre -110 et 75. Éch. 4 : fils de la chape de St-Louis d'Anjou (France), daté entre 1290 et 1310.
+*Tableau 1* : âges radiocarbone ($1\sigma$) obtenus dans le cadre de l'étude du Suaire de Turin (Damon *et al.*, 1989).
 
 ### Importer les données
 
-Après avoir installé le package `rcarbon`, la première étape consiste à créer le tableau de données (`data.frame`) où chaque ligne correspond à un laboratoire, les 4 premières colonnes correspondent aux âges conventionnels et les 4 dernières aux incertitudes.
+Après avoir installé le package rcarbon, la première étape consiste à créer le tableau de données (`data.frame`) où chaque ligne correspond à un laboratoire, les 4 premières colonnes correspondent aux âges conventionnels et les 4 dernières aux incertitudes.
 
 ```{r, eval=FALSE}
 ## Installation du package
@@ -663,7 +677,7 @@ Cette fluctuation des âges de l'échantillon 1 est vraisemblablement liée à u
 
 ### Calibration des âges
 
-Conformément aux résultats des tests précédents, les différents âges obtenus pour l'échantillon 1 seront calibrés séparément. Tandis que l'on va pouvoir calibrer l'âge moyen des échantillons 2, 3 et 4. La calibration est réalisée avec la fonction `calibrate()` du package rcarbon. On peut ensuite utiliser `summary()` pour obtenir un résumé des âges calibrés.
+Conformément aux résultats des tests précédents, les différents âges obtenus pour l'échantillon 1 seront calibrés séparément, tandis que l'on va pouvoir calibrer l'âge moyen des échantillons 2, 3 et 4. La calibration est réalisée avec la fonction `calibrate()` du package rcarbon. On peut ensuite utiliser `summary()` pour obtenir un résumé des âges calibrés. Par défaut, `summary()` affiche des âges en années cal BP.
 
 ```{r}
 ## Chargement du package rcarbon
@@ -706,9 +720,9 @@ Certains des âges calibrés à 95 % appartiennent à l'union de plusieurs inter
 
 ### Comment interpréter ces âges ?
 
-On s'intéresse en premier aux échantillons de contrôle 2, 3 et 4. Les distributions des âges conventionnels (axe des ordonnées) et calendaires (axe des abscisses) peuvent être représentés avec la courbe de calibration à l'aide de la fonction `plot()` (fig. 8). On constate alors que leurs âges calibrés sont en accord avec les datations connues par ailleurs.
+On s'intéresse en premier aux échantillons de contrôle 2, 3 et 4. Les distributions des âges conventionnels (axe des ordonnées) et calendaires (axe des abscisses) peuvent être représentés avec la courbe de calibration à l'aide de la fonction `plot()`. La figure 8 permet alors de constater que leurs âges calibrés sont en accord avec les datations connues par ailleurs.
 
-```{r turin-cal, fig.width=7, fig.height=3.5, fig.cap="Figure 8 : Distribution des âges conventionnels et calendaires des âges moyens des échantillons 2, 3 et 4. Les zones gris foncé correspondent à l'intervalle HPD à 95%. Courbe IntCal20."}
+```{r turin-cal, fig.width=7, fig.height=3.5, fig.cap="Figure 8 : Distribution des âges conventionnels et calendaires des âges moyens des échantillons 2, 3 et 4. Les zones en gris foncé correspondent à l'intervalle HPD à 95%. Courbe IntCal20."}
 ## On fixe les paramètres graphiques
 ## 'mfrow' permet d'afficher les 3 graphiques sur 1 ligne et 3 colonnes
 par(mfrow = c(1, 3), mar = c(4, 1, 3, 1) + 0.1, las = 1)
@@ -734,7 +748,7 @@ for (i in 1:3) {
 
 Les âges radiocarbone obtenus par les différents laboratoires pour l'échantillon 1 ont été calibrés séparément. La fonction `multiplot()` permet de représenter simultanément les distributions des âges calibrés (exprimés en années BC/AD) pour les trois laboratoires (fig. 9).
 
-```{r turin-plot, fig.width=6, fig.height=5, fig.cap="Figure 9 : Distribution des âges calendaires de l'échantillon 1 obtenus par les différents laboratoires. Les zones gris foncé correspondent à l'intervalle HPD à 95%. Courbe IntCal20."}
+```{r turin-plot, fig.width=6, fig.height=5, fig.cap="Figure 9 : Distribution des âges calendaires de l'échantillon 1 obtenus par les différents laboratoires. Les zones en gris foncé correspondent à l'intervalle HPD à 95%. Courbe IntCal20."}
 ## On fixe les paramètres graphiques
 par(mar = c(4, 1, 0, 1) + 0.1)
 
@@ -745,7 +759,8 @@ multiplot(
   decreasing = TRUE,
   HPD = TRUE,
   credMass = 0.95,  # 95%
-  calendar = "BCAD" # Référence calendaire
+  calendar = "BCAD", # Référence calendaire
+  xlab = "années AD"
 )
 ```
 
@@ -755,17 +770,17 @@ Si l'analyse des âges conventionnels obtenus par les différents laboratoires p
 
 Pour communiquer ou publier des âges radiocarbone de manière rigoureuse et permettre de vérifier les résultats et d'en faire usage, il est nécessaire de toujours faire figurer un certain nombre d'éléments. Par exemple, on écrira :
 
-> L'échantillon ETH-3883 est daté à 676 ± 24 ans BP, calibré à [671;633] (58 %) ou [589;563] (38 %) cal BP soit [1279;1317] (58 %) ou [1361;1387] (38 %) AD (intervalles HPD à 95 %) avec IntCal20 (Reimer *et al.* 2020) et le package rcarbon 1.4.1 (Crema et Bevan, 2020).
+> L'échantillon ETH-3883 est daté à 676 ± 24 ans BP, calibré à [671;633] (58 %) ou [589;563] (38 %) cal BP soit [1279;1317] (58 %) ou [1361;1387] (38 %) AD (intervalles HPD à 95 %) avec IntCal20 (Reimer *et al.* 2020), R 4.0.3 (R Core Team, 2020) et le package rcarbon 1.4.1 (Crema et Bevan, 2020).
 
 Sous cette forme, on dispose ainsi des éléments suivants[^16] :
 
 * L'âge conventionnel et son incertitude (676 ± 24 ans BP), accompagnés du numéro d'identification donné par le laboratoire (ETH-3883) ;
 * L'âge calibré sous la forme d'un ou plusieurs intervalles (du fait de sa distribution particulière, un âge calibré est toujours donné sous la forme d'intervalles), en précisant la probabilité associée à chaque intervalle et le référentiel temporel utilisé (cal BP ou BC/AD) ;
-* La courbe de calibration utilisée et la référence correspondante : IntCal20 (Reimer *et al.* 2020) et la version du logiciel utilisé pour la calibration (ici R 4.0.3 et le package `rcarbon` 1.4.0).
+* La courbe de calibration utilisée et la référence correspondante : IntCal20 (Reimer *et al.* 2020), les versions de R et du package utilisées (R version 4.0.3 et rcarbon version 1.4.0).
 
 ## Conclusion
 
-La calibration des âges radiocarbone permet leur transposition dans un référentiel temporel calendaire. Cette étape est indispensable à l'interprétation des résultats, d'autant plus que le rythme de l'horloge du carbone 14 varie au cours du temps. Dans cette leçon, nous avons ainsi appris à combiner des âges conventionnels et à tester leur homogénéité avant de les calibrer. Nous avons également vu comment représenter graphiquement ces âges et comment présenter les résultats avec l'ensemble des informations nécessaires à leur reproduction.
+La calibration des âges radiocarbone permet leur transposition dans un référentiel temporel calendaire. Cette étape est indispensable à l'interprétation des résultats, d'autant plus que le rythme de l'horloge du carbone 14 varie au cours du temps. Dans cette leçon, nous avons appris à combiner des âges conventionnels et à tester leur homogénéité avant de les calibrer. Nous avons également vu comment représenter graphiquement ces âges et comment présenter les résultats avec l'ensemble des informations nécessaires à leur reproduction.
 
 ## Bibliographie
 
