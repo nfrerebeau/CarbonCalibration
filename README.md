@@ -5,7 +5,7 @@
 
 This repository contains the data and code for our lesson (in french):
 
-> Frerebeau, N. et Lebrun, B. (2021). Calibrer des âges radiocarbones avec R. *The Programming Historian*. DOI : <https://doi.org/xxx/xxx>.
+> Frerebeau, N. et Lebrun, B. (2021). Calibrer des âges radiocarbones avec R. *The Programming Historian*. DOI : <https://doi.org/10.46430/phfr0016>.
 
 The files hosted in this repository are the development versions and may have changed since the lesson was published.
 
